@@ -20,11 +20,16 @@ class ActorMovieSeeder extends Seeder
         $movies = Movie::all();
         $actors = Actor::all();
 
-        // Seed the movie_actor pivot table with relationships
-        foreach ($movies as $movie) {
-            // Randomly attach actors to the movie
-            $actorsToAttach = $actors->random(rand(1, 5));
-            $movie->actors()->attach($actorsToAttach);
+        // Ensure each actor is attached to at least three movies
+        foreach ($actors as $actor) {
+            // Check if the actor is already attached to enough movies
+            if ($actor->movies()->count() >= 3) {
+                continue; // Skip if already attached to enough movies
+            }
+
+            // Attach random movies to the actor until they have at least three
+            $moviesToAttach = $movies->shuffle()->take(3 - $actor->movies()->count());
+            $actor->movies()->attach($moviesToAttach);
         }
     }
 }
